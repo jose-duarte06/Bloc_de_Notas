@@ -1,3 +1,4 @@
+// @ts-ignore - defineNuxtPlugin is auto-imported by Nuxt
 export default defineNuxtPlugin(() => {
   if (typeof window !== 'undefined' && 'serviceWorker' in navigator) {
     window.addEventListener('load', () => {
