@@ -1,0 +1,140 @@
+Quiero que generes todo lo necesario para una aplicación PWA llamada "Notas Rápidas" usando Vue.js con Nuxt.js.
+
+⚙️ Stack técnico obligatorio:
+- Nuxt 3 (Vue 3, Composition API)
+- Pinia para el manejo de estado
+- IndexedDB o localStorage para persistencia local (sin backend)
+- Service Worker personalizado para cache offline
+- manifest.webmanifest para que sea instalable
+- Soporte PWA (instalable en móvil y usable offline)
+- Diseño responsive tipo mobile-first (pensado para pantalla de teléfono)
+
+🎯 Objetivo general:
+Construir una PWA de notas llamada "Notas Rápidas" donde el usuario pueda:
+1. Crear notas.
+2. Editar notas.
+3. Eliminar notas.
+4. Ver la lista de notas guardadas.
+5. Usar la app sin conexión a Internet.
+6. Instalar la app en su pantalla de inicio como si fuera app nativa.
+
+No hay login, no hay backend, todo es local del dispositivo.
+
+🧱 Requerimientos funcionales:
+1. Pantalla principal: lista de notas.
+   - Mostrar todas las notas guardadas (título + preview del contenido + fecha/hora).
+   - Botón flotante “+” para crear nueva nota.
+
+2. Pantalla /nota/nueva:
+   - Formulario con campos: título (input) y contenido (textarea grande).
+   - Botón Guardar que almacena la nota localmente y redirige a la lista.
+
+3. Pantalla /nota/:id:
+   - Muestra una nota existente para editar.
+   - Debe permitir:
+     - Editar título y contenido.
+     - Guardar cambios.
+     - Eliminar nota.
+
+4. Confirmación al eliminar:
+   - Antes de borrar una nota, pedir confirmación básica tipo “¿Seguro que quieres eliminar esta nota?”.
+
+5. Persistencia:
+   - Las notas se guardan de forma persistente en el dispositivo aunque el usuario cierre la app o quede offline.
+   - Preferencia: IndexedDB. Si usas localStorage explícame por qué y deja el código limpio.
+
+6. Offline-first:
+   - Toda la app debe poder:
+     - Cargar la lista de notas ya guardadas sin Internet.
+     - Crear, editar y borrar notas sin Internet.
+   - Los assets estáticos (HTML/CSS/JS/íconos) se deben cachear con el service worker.
+
+7. Instalación:
+   - Agregar el manifest.webmanifest con:
+     - name, short_name
+     - icons en varios tamaños
+     - display: "standalone"
+     - theme_color y background_color
+     - start_url
+   - Asegurar que el navegador móvil permita “Add to Home Screen”.
+
+💾 Estado / Store:
+Crear una store de Pinia llamada useNotasStore con:
+- Estado: arreglo de notas.
+  Cada nota = { id: string/number, titulo: string, contenido: string, fecha: ISOString }
+- Acciones:
+  - cargarNotas() // lee del storage
+  - crearNota(titulo, contenido)
+  - actualizarNota(id, titulo, contenido)
+  - eliminarNota(id)
+- Cada acción debe actualizar el storage inmediatamente.
+
+Quiero el código completo de esa store.
+
+📂 Estructura de carpetas esperada (Nuxt 3):
+- /pages
+   - index.vue                -> lista de notas
+   - nota/
+       - nueva.vue            -> crear nota
+       - [id].vue             -> ver/editar/eliminar nota
+- /stores
+   - notas.ts                 -> Pinia store
+- /public
+   - manifest.webmanifest
+   - icons/...                -> íconos PWA
+- /service-worker.js         -> service worker registrado
+- /plugins
+   - register-sw.client.ts   -> registro del service worker en el lado cliente
+- /app.vue o layout default  -> layout base responsive
+
+Genera cada uno de esos archivos con el código necesario.
+
+🛜 Service Worker:
+Necesito el service worker con:
+- Cache estático para los assets esenciales (estrategia cache-first).
+- Cache para páginas básicas para que la app abra offline.
+- Versión de caché (por ejemplo const CACHE_VERSION = 'v1').
+
+También necesito el código en Nuxt que registre el service worker solo en el cliente y sin romper SSR.
+
+📱 UI / Estilo:
+- Estilo simple, limpio, mobile-first.
+- Usa Tailwind CSS en Nuxt (incluye la config básica de Tailwind que tengo que agregar).
+- Header fijo arriba con el título "Notas Rápidas".
+- Botones grandes y claros.
+- Nada súper fancy, pero que se mire decente en teléfono.
+
+Quiero que incluyas:
+1. Código para tailwind.config.js y cómo se integra en Nuxt.
+2. Las clases Tailwind dentro de los .vue.
+
+🧪 Criterios de aceptación (lo mínimo que debe funcionar):
+- Puedo abrir la app en el navegador, crear una nota, refrescar y la nota sigue ahí.
+- Si apago Wi-Fi, todavía puedo abrir la app (desde caché), ver mis notas, y crear una nueva.
+- El navegador me deja “instalar” la app en el home screen (Android/Chrome).
+- La app se abre en modo standalone (sin barra de navegador) cuando está instalada.
+- Puedo editar y eliminar una nota existente.
+
+📄 Entregables que quiero que me generes en la respuesta:
+1. Instrucciones paso a paso para crear el proyecto (comandos npx / npm init nuxt@latest, etc.).
+2. Configuración de Nuxt para usar Pinia y Tailwind (incluye los imports).
+3. Código completo y funcional de:
+   - pages/index.vue
+   - pages/nota/nueva.vue
+   - pages/nota/[id].vue
+   - stores/notas.ts
+   - plugins/register-sw.client.ts
+   - public/manifest.webmanifest
+   - service-worker.js
+   - tailwind.config.js
+   - nuxt.config.ts (con la config PWA mínima: meta tags, link al manifest, etc.)
+4. Explicación corta de cómo probar offline en local (por ejemplo: npm run dev, luego abrir en Chrome, usar Application > Service Workers).
+5. Nota final indicando TODOS los puntos que hacen que esta app califique como PWA.
+
+IMPORTANTE:
+- No asumas backend ni API externa.
+- No uses librerías enormes tipo Workbox a menos que expliques por qué.
+- No dejes TODO en pseudo-código: dame código real listo para copiar.
+- Usa Composition API en los componentes Vue.
+
+Al final, resume en menos de 10 líneas por qué esta app cumple con la definición de PWA.
