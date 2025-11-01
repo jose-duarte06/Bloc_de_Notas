@@ -32,7 +32,26 @@ export default defineNuxtConfig({
     port: 5000
   },
 
+  vite: {
+    build: {
+      rollupOptions: {
+        output: {
+          manualChunks: undefined,
+        }
+      }
+    }
+  },
+
   nitro: {
     preset: 'node-server'
+  },
+
+  experimental: {
+    payloadExtraction: false
+  },
+
+  routeRules: {
+    '/': { prerender: false },
+    '/nota/**': { prerender: false }
   }
 })

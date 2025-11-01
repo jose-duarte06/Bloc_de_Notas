@@ -1,45 +1,48 @@
-const CACHE_VERSION = 'v1'
-const CACHE_NAME = `notas-rapidas-${CACHE_VERSION}`
-const RUNTIME_CACHE = `runtime-${CACHE_VERSION}`
+const CACHE_VERSION = 'v3'
+const CACHE_NAME = `notas-rapidas-cache-${CACHE_VERSION}`
 
-const STATIC_ASSETS = [
+const CORE_ASSETS = [
   '/',
   '/nota/nueva',
   '/manifest.webmanifest',
   '/icons/icon-192x192.png',
-  '/icons/icon-512x512.png'
+  '/icons/icon-512x512.png',
+  '/favicon.ico'
 ]
 
 self.addEventListener('install', (event) => {
-  console.log('[Service Worker] Instalando...')
+  console.log('[SW] Installing...')
   event.waitUntil(
     caches.open(CACHE_NAME)
       .then((cache) => {
-        console.log('[Service Worker] Cacheando assets estáticos')
-        return cache.addAll(STATIC_ASSETS.map(url => new Request(url, { cache: 'reload' })))
-          .catch((error) => {
-            console.warn('[Service Worker] Algunos assets no se pudieron cachear:', error)
-            return Promise.resolve()
+        console.log('[SW] Caching core assets')
+        return Promise.all(
+          CORE_ASSETS.map((url) => {
+            return cache.add(url).catch((err) => {
+              console.warn('[SW] Failed to cache:', url, err)
+            })
           })
+        )
       })
       .then(() => self.skipWaiting())
   )
 })
 
 self.addEventListener('activate', (event) => {
-  console.log('[Service Worker] Activando...')
+  console.log('[SW] Activating...')
   event.waitUntil(
-    caches.keys().then((cacheNames) => {
-      return Promise.all(
-        cacheNames.map((cacheName) => {
-          if (cacheName !== CACHE_NAME && cacheName !== RUNTIME_CACHE) {
-            console.log('[Service Worker] Eliminando caché antigua:', cacheName)
-            return caches.delete(cacheName)
-          }
-        })
-      )
-    })
-    .then(() => self.clients.claim())
+    caches.keys()
+      .then((cacheNames) => {
+        return Promise.all(
+          cacheNames.map((cacheName) => {
+            if (cacheName !== CACHE_NAME) {
+              console.log('[SW] Deleting old cache:', cacheName)
+              return caches.delete(cacheName)
+            }
+          })
+        )
+      })
+      .then(() => self.clients.claim())
   )
 })
 
@@ -47,34 +50,50 @@ self.addEventListener('fetch', (event) => {
   const { request } = event
   const url = new URL(request.url)
 
-  if (request.method !== 'GET') {
+  if (request.method !== 'GET' || url.origin !== self.location.origin) {
     return
   }
 
-  if (url.origin !== location.origin) {
-    return
-  }
+  const isHTMLRequest = 
+    request.headers.get('accept')?.includes('text/html') || 
+    request.mode === 'navigate'
+  
+  const isAsset = /\.(js|css|png|jpg|jpeg|svg|gif|woff2?|ttf|eot|ico)(\?.*)?$/.test(url.pathname)
 
-  event.respondWith(
-    caches.match(request)
-      .then((cachedResponse) => {
-        if (cachedResponse) {
-          return cachedResponse
-        }
-
-        return caches.open(RUNTIME_CACHE).then((cache) => {
-          return fetch(request)
-            .then((response) => {
-              if (response.status === 200) {
-                cache.put(request, response.clone())
-              }
-              return response
-            })
-            .catch((error) => {
-              console.log('[Service Worker] Fetch falló, intentando caché:', error)
-              return caches.match(request)
-            })
+  if (isHTMLRequest) {
+    event.respondWith(
+      fetch(request)
+        .then((response) => {
+          const responseClone = response.clone()
+          caches.open(CACHE_NAME).then((cache) => {
+            cache.put(request, responseClone)
+          })
+          return response
         })
-      })
-  )
+        .catch(() => {
+          return caches.match(request).then((cachedResponse) => {
+            if (cachedResponse) {
+              return cachedResponse
+            }
+            return caches.match('/')
+          })
+        })
+    )
+  } else if (isAsset) {
+    event.respondWith(
+      fetch(request)
+        .then((response) => {
+          if (response.status === 200) {
+            const responseClone = response.clone()
+            caches.open(CACHE_NAME).then((cache) => {
+              cache.put(request, responseClone)
+            })
+          }
+          return response
+        })
+        .catch(() => {
+          return caches.match(request)
+        })
+    )
+  }
 })
