@@ -1,30 +1,36 @@
 export default defineNuxtConfig({
-  modules: ['@pinia/nuxt','@nuxtjs/tailwindcss','@vite-pwa/nuxt'],
+  ssr: false,
+  compatibilityDate: '2025-07-15',
+  devtools: { enabled: true },
 
-  pwa: {
-    registerType: 'autoUpdate',
-    strategies: 'generateSW',
-    workbox: {
-      globPatterns: ['**/*.{html,js,css,woff2,png,svg,ico,json}'],
-      navigateFallback: '/',              // fallback para rutas SPA
-      cleanupOutdatedCaches: true,
-    },
-    manifest: {
-      name: 'Notas Rápidas',
-      short_name: 'Notas',
-      start_url: '/',
-      display: 'standalone',
-      theme_color: '#3b82f6',
-      background_color: '#ffffff',
-      icons: [
-        { src: '/icons/icon-192x192.png', sizes: '192x192', type: 'image/png', purpose: 'any maskable' },
-        { src: '/icons/icon-512x512.png', sizes: '512x512', type: 'image/png', purpose: 'any maskable' }
+  modules: ['@pinia/nuxt','@nuxtjs/tailwindcss'],
+
+  app: {
+    head: {
+      title: 'Notas Rápidas',
+      meta: [
+        { charset: 'utf-8' },
+        { name: 'viewport', content: 'width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no' },
+        { name: 'description', content: 'Aplicación PWA para tomar notas rápidas' },
+        { name: 'theme-color', content: '#3b82f6' },
+        { name: 'apple-mobile-web-app-capable', content: 'yes' },
+        { name: 'apple-mobile-web-app-status-bar-style', content: 'default' },
+        { name: 'apple-mobile-web-app-title', content: 'Notas Rápidas' }
+      ],
+      link: [
+        { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' },
+        { rel: 'manifest', href: '/manifest.webmanifest' },
+        { rel: 'apple-touch-icon', href: '/icons/icon-192x192.png' }
       ]
-    },
-    devOptions: { enabled: true } // útil en pruebas
+    }
   },
 
-  // para App Platform (static):
-  nitro: { preset: 'vercel' }, // o quita tu 'node-server'
-  ssr: false
+  nitro: {},
+
+  experimental: { payloadExtraction: false },
+
+  routeRules: {
+    '/': { prerender: true },     // exporta index.html
+    '/nota/**': { prerender: true }
+  }
 })
