@@ -1,24 +1,34 @@
 {
+  "id": "/",
   "name": "Notas Rápidas",
   "short_name": "Notas",
   "description": "Aplicación PWA para tomar notas rápidas de forma offline",
+  "lang": "es",
+  "dir": "ltr",
+
   "start_url": "/",
+  "scope": "/",
   "display": "standalone",
+  "display_override": ["standalone", "fullscreen", "browser"],
+
   "background_color": "#ffffff",
   "theme_color": "#3b82f6",
   "orientation": "portrait-primary",
+
   "icons": [
+    { "src": "/icons/icon-192x192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
+    { "src": "/icons/icon-512x512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ],
+
+  "shortcuts": [
     {
-      "src": "/icons/icon-192x192.png",
-      "sizes": "192x192",
-      "type": "image/png",
-      "purpose": "any maskable"
-    },
-    {
-      "src": "/icons/icon-512x512.png",
-      "sizes": "512x512",
-      "type": "image/png",
-      "purpose": "any maskable"
+      "name": "Nueva nota",
+      "short_name": "Nueva",
+      "description": "Crear una nota al instante",
+      "url": "/nota/nueva",
+      "icons": [{ "src": "/icons/icon-192x192.png", "sizes": "192x192", "type": "image/png" }]
     }
-  ]
+  ],
+
+  "prefer_related_applications": false
 }
