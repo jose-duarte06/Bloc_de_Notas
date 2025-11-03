@@ -1,7 +1,8 @@
 export default defineNuxtConfig({
   compatibilityDate: '2025-07-15',
+  ssr: false,
   devtools: { enabled: true },
-  
+
   modules: [
     '@pinia/nuxt',
     '@nuxtjs/tailwindcss'
@@ -27,31 +28,7 @@ export default defineNuxtConfig({
     }
   },
 
-  devServer: {
-    host: '0.0.0.0',
-    port: 5000
-  },
-
-  vite: {
-    build: {
-      rollupOptions: {
-        output: {
-          manualChunks: undefined,
-        }
-      }
-    }
-  },
-
-  nitro: {
-    preset: 'node-server'
-  },
-
   experimental: {
     payloadExtraction: false
-  },
-
-  routeRules: {
-    '/': { prerender: false },
-    '/nota/**': { prerender: false }
   }
 })
